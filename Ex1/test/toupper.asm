@@ -1,25 +1,45 @@
-global toupper_asm
+global toupper_singlebyte__asm
+global toupper_4atonce_asm
 
 section .data
 
 section .text
 
-toupper_asm:
-    ;mov ebp, esp; for correct debugging
+toupper_singlebyte__asm:
     push ebp
     ;mov esi, [esp+4]   ; argument 1
     mov esi, eax; use fastcall argument is in eax
-next:
+next_s:
     mov edi, esi; mov src addr to dest addr for stosd
-    lodsd; load string (ptr in esi) to eax
-    ;mov ecx, [eax] ; load 4 chars from ptr
+    lodsb ; load one char
     test al, al ; test if al is 0
-    je exit
+    je exit_s ; end of the string
+    cmp al, 0x61 ; cmp to 'a'
+    jb next_s ; char is smaller 'a'
+    cmp al, 0x7a ; cmp to 'z'
+    ja next_s ; char is greater 'z'
+    xor al, 0x20
+    stosb; store byte
+    jmp next_s; is not 0 => jump to next
+exit_s:
+    pop ebp             ; restore old frame pointer
+    ret
+
+toupper_4atonce_asm:
+    push ebp
+    mov esi, eax; use fastcall argument is in eax
+next_4:
+    mov edi, esi; mov src addr to dest addr for stosd
+    lodsd; load 4 char string (ptr in esi) to eax
+    test al, al ; test if al is 0
+    je exit_4 ; end of the string
+    cmp al, 0x61 ; cmp to 'a'
+    jb next_4 ; char is smaller 'a'
+    cmp al, 0x7a ; cmp to 'z'
+    ja next_4 ; char is greater 'z'
     xor eax, 0x20202020
     stosd ; store eax to string in edi
-    ;add esi, 4 ; advance t
-    jmp next; is not 0 => jump to next
-exit:
-    ;mov esp,ebp         ; free space for locals
+    jmp next_4; is not 0 => jump to next
+exit_4:
     pop ebp             ; restore old frame pointer
     ret
