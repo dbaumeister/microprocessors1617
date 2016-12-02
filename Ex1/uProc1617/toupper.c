@@ -5,8 +5,6 @@
 #include <sys/time.h>
 #include "options.h"
 
-int no_sz = 1, no_ratio =1, no_version=1;
-
 int 			g_Debug = 0;
 double*			g_Results;
 double*			g_Ratios;
@@ -87,41 +85,42 @@ toupperversion[] =
 
 
 /*****************************************************************/
+/* Prepare the test strings.
+/*****************************************************************/
 
-
-// align at 16byte boundaries
-void* mymalloc(unsigned long int size)
+// create a random character that is upper case with a probability of "ratio".
+inline char createChar(int ratio)
 {
-     void* addr = malloc(size+32);
-     return (void*)((size_t)addr /16*16+16);
-}
-
-char createChar(int ratio){
-	char isLower = rand()%100;
+	char isLower = rand() % 100;
 
 	// upper case=0, lower case=1
 	if(isLower < ratio)
+	{
 		isLower = 0;
+	}
 	else
+	{
 		isLower = 1;
+	}
 
-	char letter = rand()%26+1; // a,A=1; b,B=2; ...
+	char letter = rand() % 26 + 1; // a,A=1; b,B=2; ...
 
-	return 0x40 + isLower*0x20 + letter;
+	return 0x40 + isLower * 0x20 + letter;
 
 }
 
-char * init(unsigned long int sz, int ratio){
-    int i=0;
-    char *text = (char *) mymalloc(sz+1);
-    srand(1);// ensures that all strings are identical
-    for(i=0;i<sz;i++){
-			char c = createChar(ratio);
-			text[i]=c;
-	  }
-    text[i] = '\0';
-    return text;
+// initialize the test string
+void initText(unsigned long size, int ratio, char* pText)
+{
+	srand(1);// ensures that all strings are identical
+
+	int i;
+	for(i = 0; i < size; ++i) {
+		pText[i] = createChar(ratio);
+	}
+	pText[i] = '\0';
 }
+
 
 /*****************************************************************/
 /* Run every version.
@@ -137,34 +136,43 @@ static inline double gettime(void)
 	return t.tv_sec + t.tv_usec / 1000000.0;
 }
 
-void run_toupper(int size, int ratio, int version, toupperfunc f, const char* name)
+void run_toupper(int size, int ratio, int index, toupperfunc f)
 {
-   double start, stop;
-		int index;
+	void* pAddr = malloc(g_Sizes[size] + 1 + 32);
 
-		index =  ratio;
-		index += size*no_ratio;
-		index += version*no_sz*no_ratio;
+	// align at 16 byte boundaries
+	char* pText =  (char*)((size_t)pAddr / 16 * 16 + 16);
 
-    char *text = init(g_Sizes[size], g_Ratios[ratio]);
+	initText(g_Sizes[size], g_Ratios[ratio], pText);
 
 
-    if(g_Debug) printf("Before: %.40s...\n",text);
+	if(g_Debug) 
+	{
+		printf("Before: %.40s...\n", pText);
+	}
 
-    start = gettime();
-    (*f)(text);
-    stop = gettime();
-    g_Results[index] = stop-start;
+	double start = gettime();
+	(*f)(pText);
+	g_Results[index] = gettime() - start;
 
-    if(g_Debug) printf("After:  %.40s...\n",text);
+	if(g_Debug) 
+	{
+		printf("After: %.40s...\n", pText);
+	}
+
+	free(pAddr);
 }
 
 
-void run(int size, int ratio)
+void run(int size, int ratio, int numRatios, int numSizes)
 {
 	int v;
-	for(v=0; toupperversion[v].func !=0; v++) {
-		run_toupper(size, ratio, v, toupperversion[v].func, toupperversion[v].name);
+	for(v = 0; toupperversion[v].func != 0; ++v) 
+	{
+		int index = ratio;
+		index += size * numRatios;
+		index += v * numSizes * numRatios;
+		run_toupper(size, ratio, index, toupperversion[v].func);
 	}
 
 }
@@ -195,53 +203,110 @@ void printResults(int numVersions, int numRatios, int numSizes)
 
 int main(int argc, char* argv[])
 {
-    unsigned long int min_sz=800000, max_sz = 0, step_sz = 10000;
-		int min_ratio=50, max_ratio = 0, step_ratio = 1;
-		int arg,i,j,v;
-		int no_exp;
+	unsigned long int min_sz = 800000;
+	unsigned long int max_sz = 0;
+	unsigned long int step_sz = 10000;
 
-		for(arg = 1;arg<argc;arg++){
-			if(0==strcmp("-d",argv[arg])){
-				g_Debug = 1;
-			}
-			if(0==strcmp("-l",argv[arg])){
-					min_sz = atoi(argv[arg+1]);
-					if(arg+2>=argc) break;
-					if(0==strcmp("-r",argv[arg+2])) break;
-					if(0==strcmp("-d",argv[arg+2])) break;
-					max_sz = atoi(argv[arg+2]);
-					step_sz = atoi(argv[arg+3]);
-			}
-			if(0==strcmp("-r",argv[arg])){
-					min_ratio = atoi(argv[arg+1]);
-					if(arg+2>=argc) break;
-					if(0==strcmp("-l",argv[arg+2])) break;
-					if(0==strcmp("-d",argv[arg+2])) break;
-					max_ratio = atoi(argv[arg+2]);
-					step_ratio = atoi(argv[arg+3]);
-			}
+	int min_ratio = 50;
+	int max_ratio = 0; 
+	int step_ratio = 1;
 
+	int arg;
+	for(arg = 1; arg < argc; ++arg)
+	{
+		if(0 == strcmp("-d", argv[arg]))
+		{
+			g_Debug = 1;
 		}
-    for(v=0; toupperversion[v].func !=0; v++)
-		no_version=v+1;
-		if(0==max_sz)  no_sz =1;
-		else no_sz = (max_sz-min_sz)/step_sz+1;
-		if(0==max_ratio)  no_ratio =1;
-		else no_ratio = (max_ratio-min_ratio)/step_ratio+1;
-		no_exp = v*no_sz*no_ratio;
-		g_Results = (double *)malloc(sizeof(double[no_exp]));
-		g_Ratios = (double *)malloc(sizeof(double[no_ratio]));
-		g_Sizes = (long *)malloc(sizeof(long[no_sz]));
 
-		for(i=0;i<no_sz;i++)
-			g_Sizes[i] = min_sz + i*step_sz;
-		for(i=0;i<no_ratio;i++)
-			g_Ratios[i] = min_ratio + i*step_ratio;
+		if(0 == strcmp("-l", argv[arg]))
+		{
+			min_sz = atoi(argv[arg + 1]);
+			if(arg + 2 >= argc)
+				break;
+			if(0 == strcmp("-r", argv[arg + 2])) 
+				break;
+			if(0 == strcmp("-d", argv[arg + 2])) 
+				break;
+			max_sz = atoi(argv[arg + 2]);
+			step_sz = atoi(argv[arg + 3]);
+		}
 
-		for(i=0;i<no_sz;i++)
-			for(j=0;j<no_ratio;j++)
-				run(i,j);
+		if(0 == strcmp("-r", argv[arg]))
+		{
+			min_ratio = atoi(argv[arg + 1]);
+			if(arg + 2 >= argc) 
+				break;
+			if(0 == strcmp("-l", argv[arg + 2])) 
+				break;
+			if(0 == strcmp("-d", argv[arg + 2])) 
+				break;
+			max_ratio = atoi(argv[arg + 2]);
+			step_ratio = atoi(argv[arg + 3]);
+		}
+	}
 
-		printResults(v, no_ratio, no_sz);
+	// Get the number of versions
+	int numVersions = 0;
+	while(toupperversion[numVersions].func != 0)
+	{
+		++numVersions;
+	}
+
+
+	int numSizes = 0;
+	if(0 == max_sz) 
+	{
+		numSizes = 1;
+	}
+	else 
+	{
+		numSizes = (max_sz - min_sz) / step_sz + 1;
+	}	
+	
+	int numRatios = 0;
+	if(0 == max_ratio) 
+	{
+		numRatios =1;
+	}	
+	else
+	{
+		numRatios = (max_ratio - min_ratio) / step_ratio + 1;
+	} 
+
+
+	int numResults = numVersions * numSizes * numRatios;
+
+	g_Results = (double *)malloc(sizeof(double[numResults]));
+	g_Ratios = (double *)malloc(sizeof(double[numRatios]));
+	g_Sizes = (long *)malloc(sizeof(long[numSizes]));
+
+	int i;
+	for(i = 0; i < numSizes; ++i)
+	{
+		g_Sizes[i] = min_sz + i * step_sz;
+	}
+	
+	for(i = 0; i < numRatios; ++i)
+	{
+		g_Ratios[i] = min_ratio + i * step_ratio;
+	}
+
+	
+	for(i = 0; i < numSizes; ++i)
+	{
+		int j;
+		for(j = 0; j < numRatios; ++j)
+		{
+			run(i, j, numRatios, numSizes);
+		}
+	}
+
+	printResults(numVersions, numRatios, numSizes);
+
+	free(g_Results);
+	free(g_Ratios);
+	free(g_Sizes);
+
     return 0;
 }
