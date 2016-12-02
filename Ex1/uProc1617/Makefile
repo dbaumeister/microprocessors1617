@@ -25,14 +25,14 @@ PARAMS = 80000
 
 exe: .autoclean $(VARIANTS) Makefile
 	if test -a ./$(PROGRAM)_variant1; then ./$(PROGRAM)_variant1 $(PARAMS) > results1;else rm -f results1; fi
-	if test -a ./$(PROGRAM)_variant2; then ./$(PROGRAM)_variant2 $(PARAMS) > results2;else rm -f results2;fi
-	if test -a ./$(PROGRAM)_variant3; then ./$(PROGRAM)_variant3 $(PARAMS) > results3;else rm -f results3;fi
-	if test -a ./$(PROGRAM)_variant4; then ./$(PROGRAM)_variant4 $(PARAMS) > results4;else rm -f results4;fi
-	if test -a ./$(PROGRAM)_variant5; then ./$(PROGRAM)_variant5 $(PARAMS) > results5;else rm -f results5;fi
-	if test -a ./$(PROGRAM)_variant6; then ./$(PROGRAM)_variant6 $(PARAMS) > results6;else rm -f results6;fi
-	if test -a ./$(PROGRAM)_variant7; then ./$(PROGRAM)_variant7 $(PARAMS) > results7;else rm -f results7;fi
-	if test -a ./$(PROGRAM)_variant8; then ./$(PROGRAM)_variant8 $(PARAMS) > results8;else rm -f results8;fi
-	if test -a ./$(PROGRAM)_variant9; then ./$(PROGRAM)_variant9 $(PARAMS) > results9;else rm -f results9;fi
+	if test -a ./$(PROGRAM)_variant2; then ./$(PROGRAM)_variant2 $(PARAMS) > results2;else rm -f results2; fi
+	if test -a ./$(PROGRAM)_variant3; then ./$(PROGRAM)_variant3 $(PARAMS) > results3;else rm -f results3; fi
+	if test -a ./$(PROGRAM)_variant4; then ./$(PROGRAM)_variant4 $(PARAMS) > results4;else rm -f results4; fi
+	if test -a ./$(PROGRAM)_variant5; then ./$(PROGRAM)_variant5 $(PARAMS) > results5;else rm -f results5; fi
+	if test -a ./$(PROGRAM)_variant6; then ./$(PROGRAM)_variant6 $(PARAMS) > results6;else rm -f results6; fi
+	if test -a ./$(PROGRAM)_variant7; then ./$(PROGRAM)_variant7 $(PARAMS) > results7;else rm -f results7; fi
+	if test -a ./$(PROGRAM)_variant8; then ./$(PROGRAM)_variant8 $(PARAMS) > results8;else rm -f results8; fi
+	if test -a ./$(PROGRAM)_variant9; then ./$(PROGRAM)_variant9 $(PARAMS) > results9;else rm -f results9; fi
 	if test -a ./results1; then cat results1 > results; else rm -f results; fi
 	if test -a ./results2; then cat results2 >> results; fi
 	if test -a ./results3; then cat results3 >> results; fi
