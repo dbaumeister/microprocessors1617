@@ -7,9 +7,9 @@
 
 
 int debug = 0;
-double *results;
-double *ratios;
-unsigned long   *sizes;
+double *g_Results;
+double *g_Ratios;
+unsigned long   *g_Sizes;
 
 int no_sz = 1, no_ratio =1, no_version=1;
 
@@ -111,7 +111,7 @@ void run_toupper(int size, int ratio, int version, toupperfunc f, const char* na
 		index += size*no_ratio;
 		index += version*no_sz*no_ratio;
 
-    char *text = init(sizes[size], ratios[ratio]);
+    char *text = init(g_Sizes[size], g_Ratios[ratio]);
 
 
     if(debug) printf("Before: %.40s...\n",text);
@@ -119,7 +119,7 @@ void run_toupper(int size, int ratio, int version, toupperfunc f, const char* na
     start = gettime();
     (*f)(text);
     stop = gettime();
-    results[index] = stop-start;
+    g_Results[index] = stop-start;
 
     if(debug) printf("After:  %.40s...\n",text);
 }
@@ -143,18 +143,24 @@ void run(int size, int ratio)
 
 }
 
-void printresults(){
-	int i,j,k,index;
+void printResults(int numVersions, int numRatios, int numSizes)
+{
 	printf("%s\n", OPTS);
 
-	for(j=0;j<no_sz;j++){
-		for(k=0;k<no_ratio;k++){
-			printf("Size: %ld \tRatio: %f \tRunning time:", sizes[j], ratios[k]);
-			for(i=0;i<no_version;i++){
-				index =  k;
-				index += j*no_ratio;
-				index += i*no_sz*no_ratio;
-				printf("\t%s: %f", toupperversion[i].name, results[index]);
+	int j;
+	for(j = 0; j < numSizes; ++j)
+	{
+		int k;
+		for(k = 0; k < numRatios; ++k)
+		{
+			printf("Size: %ld \tRatio: %f \tRunning time:", g_Sizes[j], g_Ratios[k]);
+			int i;
+			for(i = 0; i < numVersions; ++i)
+			{
+				int index = k;
+				index += j * numRatios;
+				index += i * numSizes * numRatios;
+				printf("\t%s: %f", toupperversion[i].name, g_Results[index]);
 			}
 			printf("\n");
 		}
@@ -197,19 +203,19 @@ int main(int argc, char* argv[])
 		if(0==max_ratio)  no_ratio =1;
 		else no_ratio = (max_ratio-min_ratio)/step_ratio+1;
 		no_exp = v*no_sz*no_ratio;
-		results = (double *)malloc(sizeof(double[no_exp]));
-		ratios = (double *)malloc(sizeof(double[no_ratio]));
-		sizes = (long *)malloc(sizeof(long[no_sz]));
+		g_Results = (double *)malloc(sizeof(double[no_exp]));
+		g_Ratios = (double *)malloc(sizeof(double[no_ratio]));
+		g_Sizes = (long *)malloc(sizeof(long[no_sz]));
 
 		for(i=0;i<no_sz;i++)
-			sizes[i] = min_sz + i*step_sz;
+			g_Sizes[i] = min_sz + i*step_sz;
 		for(i=0;i<no_ratio;i++)
-			ratios[i] = min_ratio + i*step_ratio;
+			g_Ratios[i] = min_ratio + i*step_ratio;
 
 		for(i=0;i<no_sz;i++)
 			for(j=0;j<no_ratio;j++)
 				run(i,j);
 
-		printresults();
+		printResults(v, no_ratio, no_sz);
     return 0;
 }
