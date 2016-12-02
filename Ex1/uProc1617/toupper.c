@@ -93,7 +93,7 @@ toupperversion[] =
 void* mymalloc(unsigned long int size)
 {
      void* addr = malloc(size+32);
-     return (void*)((unsigned long int)addr /16*16+16);
+     return (void*)((size_t)addr /16*16+16);
 }
 
 char createChar(int ratio){
