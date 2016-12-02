@@ -2,6 +2,7 @@
 
 
 PROGRAM = toupper
+ASM = $(PROGRAM)_asm
 SHELL := /bin/bash
 
 sources = $(PROGRAM).c
@@ -13,7 +14,7 @@ VARIANTS += $(PROGRAM)_variant4
 
 
 ICC = icc -fsource-asm -fno-alias -lm $(sources)
-GCC = gcc -Wall -m32 -g $(sources)
+GCC = gcc -Wall -m32 -g $(sources) $(ASM).o
 $(PROGRAM)_variant1 = $(GCC) -O0 
 $(PROGRAM)_variant2 = $(GCC) -O1
 $(PROGRAM)_variant3 = $(GCC) -O2
@@ -84,7 +85,7 @@ $(PROGRAM)_variant9: $(sources) Makefile
 	$($(PROGRAM)_variant9) -o $(PROGRAM)_variant9
 
 .prebuild:
-	nasm -g -f elf32 -F dwarf toupper.asm
+	nasm -g -f elf32 -F dwarf $(ASM).asm
 
 .autoclean: Makefile
 	make clean

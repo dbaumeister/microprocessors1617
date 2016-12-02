@@ -36,13 +36,13 @@ static void toupper_simple(char * text)
 // Default version - assembler
 static void toupper_asm(char * text) 
 {
-	//TODO
+	toupper_singlebyte__asm(text);
 }
 
 // For 4 byte aligned strings - assembler
 static void toupper_asm_4atonce(char * text) 
 {
-	//TODO
+	toupper_4atonce_asm(text);
 }
 
 // Assume only letters as input - c
