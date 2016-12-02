@@ -5,56 +5,85 @@
 #include <sys/time.h>
 #include "options.h"
 
-
-int debug = 0;
-double *g_Results;
-double *g_Ratios;
-unsigned long   *g_Sizes;
-
 int no_sz = 1, no_ratio =1, no_version=1;
 
+int 			g_Debug = 0;
+double*			g_Results;
+double*			g_Ratios;
+unsigned long*	g_Sizes;
 
-//char toUpperLUT[256] = {
-//
-//
-//}
+/*****************************************************************/
+/* Different versions.
+/*****************************************************************/
 
-static inline
-double gettime(void) {
-	// to be implemented
-	struct timeval t;
-	gettimeofday(&t, 0);
-
-	// t.tv_sec -> timestamp for seconds
-	// t.tv_usec -> timestamp for microseconds
-
-	return t.tv_sec + t.tv_usec / 1000000.0;
-}
-
-
-static void toupper_simple(char * text) {
-	// 97 = a
-	// 122 = z
-	int i = 0;
-	char c = text[0];
-	while(c != '\0') {
-		if( c >= 'a' && c <= 'z') {
-			text[i] -= 0x20;
+// Default version - c
+static void toupper_simple(char * text) 
+{
+	while(*text != '\0') 
+	{
+		if( *text >= 'a' && *text <= 'z') 
+		{
+			*text -= 0x20;
 		}
-		c = text[++i];
+		++text;
 	}
 }
 
+// Default version - assembler
+static void toupper_asm(char * text) 
+{
+	//TODO
+}
 
-// http://stackoverflow.com/questions/10688831/fastest-way-to-capitalize-words
-static void toupper_optimised(char * text) {
-  	// to be implemented
-	while(*text != '\0') {
+// For 4 byte aligned strings - assembler
+static void toupper_asm_4atonce(char * text) 
+{
+	//TODO
+}
+
+// Assume only letters as input - c
+static void toupper_letters(char * text) 
+{
+	while(*text != '\0') 
+	{
 		*text &= ~0x20;
 		++text;
 	}
-	//asm(""); 		
 }
+
+// Assume only letters as input - assembler
+static void toupper_letters_asm(char * text) 
+{
+	// TODO
+}
+
+// For 4 byte aligned strings - assembler
+static void toupper_letters_asm_4atonce(char * text) 
+{
+	//TODO
+}
+
+
+/*****************************************************************/
+/* Register versions.
+/*****************************************************************/
+typedef void (*toupperfunc)(char *text);
+
+struct _toupperversion 
+{
+	const char* 			name;
+	toupperfunc 			func;
+} 
+toupperversion[] = 
+{
+    { "toupper_simple",    				toupper_simple },
+    { "toupper_asm", 					toupper_asm },
+    { "toupper_asm_4atonce", 			toupper_asm_4atonce },
+    { "toupper_letters", 				toupper_letters },
+    { "toupper_letters_asm", 			toupper_letters_asm },
+    { "toupper_letters_asm_4atonce", 	toupper_letters_asm_4atonce },
+    { 0, 0 }
+};
 
 
 /*****************************************************************/
@@ -94,13 +123,19 @@ char * init(unsigned long int sz, int ratio){
     return text;
 }
 
+/*****************************************************************/
+/* Run every version.
+/*****************************************************************/
 
+static inline double gettime(void) 
+{
+	struct timeval t;
+	gettimeofday(&t, 0);
 
-/*
- * ******************* Run the different versions **************
- */
-
-typedef void (*toupperfunc)(char *text);
+	// t.tv_sec -> timestamp for seconds
+	// t.tv_usec -> timestamp for microseconds
+	return t.tv_sec + t.tv_usec / 1000000.0;
+}
 
 void run_toupper(int size, int ratio, int version, toupperfunc f, const char* name)
 {
@@ -114,24 +149,15 @@ void run_toupper(int size, int ratio, int version, toupperfunc f, const char* na
     char *text = init(g_Sizes[size], g_Ratios[ratio]);
 
 
-    if(debug) printf("Before: %.40s...\n",text);
+    if(g_Debug) printf("Before: %.40s...\n",text);
 
     start = gettime();
     (*f)(text);
     stop = gettime();
     g_Results[index] = stop-start;
 
-    if(debug) printf("After:  %.40s...\n",text);
+    if(g_Debug) printf("After:  %.40s...\n",text);
 }
-
-struct _toupperversion {
-    const char* name;
-    toupperfunc func;
-} toupperversion[] = {
-    { "simple",    toupper_simple },
-    { "optimised", toupper_optimised },
-    { 0,0 }
-};
 
 
 void run(int size, int ratio)
@@ -176,7 +202,7 @@ int main(int argc, char* argv[])
 
 		for(arg = 1;arg<argc;arg++){
 			if(0==strcmp("-d",argv[arg])){
-				debug = 1;
+				g_Debug = 1;
 			}
 			if(0==strcmp("-l",argv[arg])){
 					min_sz = atoi(argv[arg+1]);
