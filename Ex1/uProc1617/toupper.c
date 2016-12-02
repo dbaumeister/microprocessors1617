@@ -10,8 +10,14 @@ double*			g_Results;
 double*			g_Ratios;
 unsigned long*	g_Sizes;
 
+
+// use fastcall to pass ptr
+__attribute__((fastcall)) int toupper_singlebyte__asm(char* pStr);
+__attribute__((fastcall)) int toupper_4atonce_asm(char* pStr);
+
+
 /*****************************************************************/
-/* Different versions.
+// Different versions.
 /*****************************************************************/
 
 // Default version - c
@@ -63,7 +69,7 @@ static void toupper_letters_asm_4atonce(char * text)
 
 
 /*****************************************************************/
-/* Register versions.
+// Register versions.
 /*****************************************************************/
 typedef void (*toupperfunc)(char *text);
 
@@ -85,11 +91,11 @@ toupperversion[] =
 
 
 /*****************************************************************/
-/* Prepare the test strings.
+// Prepare the test strings.
 /*****************************************************************/
 
 // create a random character that is upper case with a probability of "ratio".
-inline char createChar(int ratio)
+static inline char createChar(int ratio)
 {
 	char isLower = rand() % 100;
 
@@ -123,7 +129,7 @@ void initText(unsigned long size, int ratio, char* pText)
 
 
 /*****************************************************************/
-/* Run every version.
+// Run every version.
 /*****************************************************************/
 
 static inline double gettime(void) 
@@ -279,7 +285,7 @@ int main(int argc, char* argv[])
 
 	g_Results = (double *)malloc(sizeof(double[numResults]));
 	g_Ratios = (double *)malloc(sizeof(double[numRatios]));
-	g_Sizes = (long *)malloc(sizeof(long[numSizes]));
+	g_Sizes = (unsigned long *)malloc(sizeof(unsigned long[numSizes]));
 
 	int i;
 	for(i = 0; i < numSizes; ++i)

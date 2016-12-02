@@ -1,5 +1,6 @@
 .PHONY:exe 
 
+
 PROGRAM = toupper
 SHELL := /bin/bash
 
@@ -12,7 +13,7 @@ VARIANTS += $(PROGRAM)_variant4
 
 
 ICC = icc -fsource-asm -fno-alias -lm $(sources)
-GCC = gcc -lm -march=native $(sources)
+GCC = gcc -Wall -m32 -g $(sources)
 $(PROGRAM)_variant1 = $(GCC) -O0 
 $(PROGRAM)_variant2 = $(GCC) -O1
 $(PROGRAM)_variant3 = $(GCC) -O2
@@ -22,8 +23,8 @@ PARAMS = 80000
 
 #############################################################################################
 
+exe: .autoclean .prebuild $(VARIANTS) Makefile
 
-exe: .autoclean $(VARIANTS) Makefile
 	if test -a ./$(PROGRAM)_variant1; then ./$(PROGRAM)_variant1 $(PARAMS) > results1;else rm -f results1; fi
 	if test -a ./$(PROGRAM)_variant2; then ./$(PROGRAM)_variant2 $(PARAMS) > results2;else rm -f results2; fi
 	if test -a ./$(PROGRAM)_variant3; then ./$(PROGRAM)_variant3 $(PARAMS) > results3;else rm -f results3; fi
@@ -43,7 +44,7 @@ exe: .autoclean $(VARIANTS) Makefile
 	if test -a ./results8; then cat results8 >> results; fi
 	if test -a ./results9; then cat results9 >> results; fi
 	cat results;
-	if test -a options.h; then rm options.h;fi
+	if test -a options.h; then rm options.h; fi
 
 $(PROGRAM)_variant1: $(sources) Makefile
 	echo '#define OPTS "VARIANT1: $($(PROGRAM)_variant1)"' > options.h 
@@ -81,6 +82,9 @@ $(PROGRAM)_variant9: $(sources) Makefile
 	echo '#define OPTS "VARIANT9: $($(PROGRAM)_variant9)"' > options.h 
 	$($(PROGRAM)_variant9) -S -o $(PROGRAM)_variant9.s
 	$($(PROGRAM)_variant9) -o $(PROGRAM)_variant9
+
+.prebuild:
+	nasm -g -f elf32 -F dwarf toupper.asm
 
 .autoclean: Makefile
 	make clean
