@@ -12,8 +12,9 @@ unsigned long*	g_Sizes;
 
 
 // use fastcall to pass ptr
-__attribute__((fastcall)) int toupper_singlebyte__asm(char* pStr);
-__attribute__((fastcall)) int toupper_4atonce_asm(char* pStr);
+// __attribute__((fastcall))
+__attribute__((cdecl)) void toupper_singlebyte__asm(char* pStr);
+__attribute__((cdecl)) void toupper_4atonce_asm(char* pStr);
 
 
 /*****************************************************************/
@@ -21,7 +22,7 @@ __attribute__((fastcall)) int toupper_4atonce_asm(char* pStr);
 /*****************************************************************/
 
 // Default version - c
-static void toupper_simple(char * text) 
+__attribute__((cdecl))  void toupper_simple(char * text) 
 {
 	while(*text != '\0') 
 	{
@@ -34,19 +35,19 @@ static void toupper_simple(char * text)
 }
 
 // Default version - assembler
-static void toupper_asm(char * text) 
-{
-	toupper_singlebyte__asm(text);
-}
+// __attribute__((cdecl)) void toupper_asm(char * text) 
+// {
+// 	toupper_singlebyte__asm(text);
+// }
 
-// For 4 byte aligned strings - assembler
-static void toupper_asm_4atonce(char * text) 
-{
-	toupper_4atonce_asm(text);
-}
+// // For 4 byte aligned strings - assembler
+// __attribute__((cdecl)) void toupper_asm_4atonce(char * text) 
+// {
+// 	toupper_4atonce_asm(text);
+// }
 
 // Assume only letters as input - c
-static void toupper_letters(char * text) 
+__attribute__((cdecl))  void toupper_letters(char * text) 
 {
 	while(*text != '\0') 
 	{
@@ -56,13 +57,13 @@ static void toupper_letters(char * text)
 }
 
 // Assume only letters as input - assembler
-static void toupper_letters_asm(char * text) 
+__attribute__((cdecl)) void toupper_letters_asm(char * text) 
 {
 	// TODO
 }
 
 // For 4 byte aligned strings - assembler
-static void toupper_letters_asm_4atonce(char * text) 
+__attribute__((cdecl))  void toupper_letters_asm_4atonce(char * text) 
 {
 	//TODO
 }
@@ -71,7 +72,7 @@ static void toupper_letters_asm_4atonce(char * text)
 /*****************************************************************/
 // Register versions.
 /*****************************************************************/
-typedef void (*toupperfunc)(char *text);
+typedef __attribute__((cdecl))  void (*toupperfunc)(char *text);
 
 struct _toupperversion 
 {
@@ -81,8 +82,8 @@ struct _toupperversion
 toupperversion[] = 
 {
     { "toupper_simple",    				toupper_simple },
-    { "toupper_asm", 					toupper_asm },
-    { "toupper_asm_4atonce", 			toupper_asm_4atonce },
+    { "toupper_asm", 					toupper_singlebyte__asm },
+    { "toupper_asm_4atonce", 			toupper_4atonce_asm },
     { "toupper_letters", 				toupper_letters },
     { "toupper_letters_asm", 			toupper_letters_asm },
     { "toupper_letters_asm_4atonce", 	toupper_letters_asm_4atonce },
@@ -148,11 +149,9 @@ void run_toupper(int size, int ratio, int index, toupperfunc f)
 
 	// align at 16 byte boundaries
 	char* pText =  (char*)((size_t)pAddr / 16 * 16 + 16);
-
 	initText(g_Sizes[size], g_Ratios[ratio], pText);
 
-
-	if(g_Debug) 
+	if(g_Debug)
 	{
 		printf("Before: %.40s...\n", pText);
 	}
@@ -178,6 +177,12 @@ void run(int size, int ratio, int numRatios, int numSizes)
 		int index = ratio;
 		index += size * numRatios;
 		index += v * numSizes * numRatios;
+
+		if(g_Debug)
+		{
+			printf("Version: %s\n", toupperversion[v].name);
+
+		}
 		run_toupper(size, ratio, index, toupperversion[v].func);
 	}
 

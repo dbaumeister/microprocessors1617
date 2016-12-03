@@ -7,8 +7,10 @@ section .text
 
 toupper_singlebyte__asm:
     push ebp
-    ;mov esi, [esp+4]   ; argument 1
-    mov esi, eax; use fastcall argument is in eax
+    mov ebp, esp
+    mov esi, [esp+8]   ; argument 1
+    ;mov esi, ecx; use fastcall argument is in eax, or sometimes ecx because gcc
+    ;push eax
 next_s:
     mov edi, esi; mov src addr to dest addr for stosd
     lodsb ; load one char
@@ -23,11 +25,15 @@ next_s:
     jmp next_s; is not 0 => jump to next
 exit_s:
     pop ebp             ; restore old frame pointer
+    ;pop eax;
     ret
 
 toupper_4atonce_asm:
     push ebp
-    mov esi, eax; use fastcall argument is in eax
+    mov ebp, esp
+    mov esi, [esp+8]   ; argument 1
+    ;mov esi, ecx; use fastcall argument is in eax
+    ;push eax
 next_4:
     mov edi, esi; mov src addr to dest addr for stosd
     lodsd; load 4 char string (ptr in esi) to eax
@@ -42,4 +48,5 @@ next_4:
     jmp next_4; is not 0 => jump to next
 exit_4:
     pop ebp             ; restore old frame pointer
+    ;pop eax
     ret
