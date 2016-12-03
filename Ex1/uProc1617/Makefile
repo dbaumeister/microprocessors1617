@@ -49,42 +49,45 @@ exe: .autoclean .prebuild $(VARIANTS) Makefile
 
 $(PROGRAM)_variant1: $(sources) Makefile
 	echo '#define OPTS "VARIANT1: $($(PROGRAM)_variant1)"' > options.h 
-	$($(PROGRAM)_variant1) -S -o $(PROGRAM)_variant1.s
 	$($(PROGRAM)_variant1) -o $(PROGRAM)_variant1
+	$($(PROGRAM)_variant1) -S -o $(PROGRAM)_variant1.s
 $(PROGRAM)_variant2: $(sources) Makefile
 	echo '#define OPTS "VARIANT2: $($(PROGRAM)_variant2)"' > options.h 
-	$($(PROGRAM)_variant2) -S -o $(PROGRAM)_variant2.s
 	$($(PROGRAM)_variant2) -o $(PROGRAM)_variant2
+	$($(PROGRAM)_variant2) -S -o $(PROGRAM)_variant2.s
 $(PROGRAM)_variant3: $(sources) Makefile
 	echo '#define OPTS "VARIANT3: $($(PROGRAM)_variant3)"' > options.h 
-	$($(PROGRAM)_variant3) -S -o $(PROGRAM)_variant3.s
 	$($(PROGRAM)_variant3) -o $(PROGRAM)_variant3
+	$($(PROGRAM)_variant3) -S -o $(PROGRAM)_variant3.s
 $(PROGRAM)_variant4: $(sources) Makefile
 	echo '#define OPTS "VARIANT4: $($(PROGRAM)_variant4)"' > options.h 
-	$($(PROGRAM)_variant4) -S -o $(PROGRAM)_variant4.s
 	$($(PROGRAM)_variant4) -o $(PROGRAM)_variant4
+	$($(PROGRAM)_variant4) -S -o $(PROGRAM)_variant4.s
 $(PROGRAM)_variant5: $(sources) Makefile
 	echo '#define OPTS "VARIANT5: $($(PROGRAM)_variant5)"' > options.h 
-	$($(PROGRAM)_variant5) -S  -o $(PROGRAM)_variant5.s
 	$($(PROGRAM)_variant5) -o $(PROGRAM)_variant5
+	$($(PROGRAM)_variant5) -S  -o $(PROGRAM)_variant5.s
 $(PROGRAM)_variant6: $(sources) Makefile
 	echo '#define OPTS "VARIANT6: $($(PROGRAM)_variant6)"' > options.h 
-	$($(PROGRAM)_variant6) -S -o $(PROGRAM)_variant6.s
 	$($(PROGRAM)_variant6) -o $(PROGRAM)_variant6
+	$($(PROGRAM)_variant6) -S -o $(PROGRAM)_variant6.s
 $(PROGRAM)_variant7: $(sources) Makefile
 	echo '#define OPTS "VARIANT7: $($(PROGRAM)_variant7)"' > options.h 
-	$($(PROGRAM)_variant7) -S -o $(PROGRAM)_variant7.s
 	$($(PROGRAM)_variant7) -o $(PROGRAM)_variant7
+	$($(PROGRAM)_variant7) -S -o $(PROGRAM)_variant7.s
 $(PROGRAM)_variant8: $(sources) Makefile
 	echo '#define OPTS "VARIANT8: $($(PROGRAM)_variant8)"' > options.h 
-	$($(PROGRAM)_variant8) -S -o $(PROGRAM)_variant8.s
 	$($(PROGRAM)_variant8) -o $(PROGRAM)_variant8
+	$($(PROGRAM)_variant8) -S -o $(PROGRAM)_variant8.s
 $(PROGRAM)_variant9: $(sources) Makefile
 	echo '#define OPTS "VARIANT9: $($(PROGRAM)_variant9)"' > options.h 
-	$($(PROGRAM)_variant9) -S -o $(PROGRAM)_variant9.s
 	$($(PROGRAM)_variant9) -o $(PROGRAM)_variant9
+	$($(PROGRAM)_variant9) -S -o $(PROGRAM)_variant9.s
 
 .prebuild:
+	nasm -f elf32 -F dwarf $(ASM).asm
+
+.prebuilddbg:
 	nasm -g -f elf32 -F dwarf $(ASM).asm
 
 .autoclean: Makefile
