@@ -10,17 +10,25 @@ sources = $(PROGRAM).c
 VARIANTS = $(PROGRAM)_variant1
 VARIANTS += $(PROGRAM)_variant2 
 VARIANTS += $(PROGRAM)_variant3 
-VARIANTS += $(PROGRAM)_variant4 
+VARIANTS += $(PROGRAM)_variant4  
 
 
 ICC = icc -fsource-asm -fno-alias -lm $(sources)
-GCC = gcc -Wall -m32 -g $(sources) $(ASM).o
+GCC = gcc -Wall -m32 $(sources) $(ASM).o
+CLANG = clang -Werror $(sources) $(ASM).o
+
 $(PROGRAM)_variant1 = $(GCC) -O0 
 $(PROGRAM)_variant2 = $(GCC) -O1
 $(PROGRAM)_variant3 = $(GCC) -O2
 $(PROGRAM)_variant4 = $(GCC) -O3
 
-PARAMS = 80000
+
+$(PROGRAM)_variant5 = $(CLANG) -O0 
+$(PROGRAM)_variant6 = $(CLANG) -O1
+$(PROGRAM)_variant7 = $(CLANG) -O2
+$(PROGRAM)_variant8 = $(CLANG) -O3
+
+PARAMS = 800000
 
 #############################################################################################
 

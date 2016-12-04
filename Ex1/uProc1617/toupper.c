@@ -36,7 +36,7 @@ __attribute__((cdecl))  void toupper_simple(char * text)
 }
 
 // Assume only letters as input - c
-__attribute__((cdecl))  void toupper_letters(char * text) 
+__attribute__((cdecl))  void toupper_unsafe(char * text) 
 {
 	while(*text != '\0') 
 	{
@@ -59,7 +59,7 @@ toupperversion[] =
 {
     { "toupper_simple",    				toupper_simple },
     { "toupper_asm", 					toupper_singlebyte__asm },
-    //{ "toupper_asm_4atonce", 			toupper_4atonce_asm },
+    { "toupper_unsafe", 				toupper_unsafe },
     { "toupper_asm_4atonce_unsafe", 	toupper_4atonce_unsafe_asm },
     { 0, 0 }
 };
