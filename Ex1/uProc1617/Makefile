@@ -10,25 +10,38 @@ sources = $(PROGRAM).c
 VARIANTS = $(PROGRAM)_variant1
 VARIANTS += $(PROGRAM)_variant2 
 VARIANTS += $(PROGRAM)_variant3 
-VARIANTS += $(PROGRAM)_variant4  
+VARIANTS += $(PROGRAM)_variant4 
+VARIANTS += $(PROGRAM)_variant5 
+VARIANTS += $(PROGRAM)_variant6 
+VARIANTS += $(PROGRAM)_variant7
+VARIANTS += $(PROGRAM)_variant8 
+VARIANTS += $(PROGRAM)_variant9 
+VARIANTS += $(PROGRAM)_variant10 
+VARIANTS += $(PROGRAM)_variant11 
+VARIANTS += $(PROGRAM)_variant12  
 
-
-ICC = icc -fsource-asm -fno-alias -lm $(sources)
+ICC = icc -fsource-asm -fno-alias -m64 $(sources) -lm
 GCC = gcc -Wall -m32 $(sources) $(ASM).o
-CLANG = clang -Werror $(sources) $(ASM).o
+CLANG = clang -m32 $(sources) $(ASM).o
 
 $(PROGRAM)_variant1 = $(GCC) -O0 
 $(PROGRAM)_variant2 = $(GCC) -O1
 $(PROGRAM)_variant3 = $(GCC) -O2
 $(PROGRAM)_variant4 = $(GCC) -O3
 
-
 $(PROGRAM)_variant5 = $(CLANG) -O0 
 $(PROGRAM)_variant6 = $(CLANG) -O1
 $(PROGRAM)_variant7 = $(CLANG) -O2
 $(PROGRAM)_variant8 = $(CLANG) -O3
 
-PARAMS = 800000
+
+$(PROGRAM)_variant9 = $(ICC) -O0
+$(PROGRAM)_variant10 = $(ICC) -O1
+$(PROGRAM)_variant11 = $(ICC) -O2
+$(PROGRAM)_variant12 = $(ICC) -O3
+
+
+PARAMS = -l 200000 400000 10000
 
 #############################################################################################
 
@@ -43,6 +56,9 @@ exe: .autoclean .prebuild $(VARIANTS) Makefile
 	if test -a ./$(PROGRAM)_variant7; then ./$(PROGRAM)_variant7 $(PARAMS) > results7;else rm -f results7; fi
 	if test -a ./$(PROGRAM)_variant8; then ./$(PROGRAM)_variant8 $(PARAMS) > results8;else rm -f results8; fi
 	if test -a ./$(PROGRAM)_variant9; then ./$(PROGRAM)_variant9 $(PARAMS) > results9;else rm -f results9; fi
+	if test -a ./$(PROGRAM)_variant10; then ./$(PROGRAM)_variant10 $(PARAMS) > results10;else rm -f results10; fi
+	if test -a ./$(PROGRAM)_variant11; then ./$(PROGRAM)_variant11 $(PARAMS) > results11;else rm -f results11; fi
+	if test -a ./$(PROGRAM)_variant12; then ./$(PROGRAM)_variant12 $(PARAMS) > results12;else rm -f results12; fi
 	if test -a ./results1; then cat results1 > results; else rm -f results; fi
 	if test -a ./results2; then cat results2 >> results; fi
 	if test -a ./results3; then cat results3 >> results; fi
@@ -52,6 +68,9 @@ exe: .autoclean .prebuild $(VARIANTS) Makefile
 	if test -a ./results7; then cat results7 >> results; fi
 	if test -a ./results8; then cat results8 >> results; fi
 	if test -a ./results9; then cat results9 >> results; fi
+	if test -a ./results10; then cat results10 >> results; fi
+	if test -a ./results11; then cat results11 >> results; fi
+	if test -a ./results12; then cat results12 >> results; fi
 	cat results;
 	if test -a options.h; then rm options.h; fi
 
@@ -91,6 +110,18 @@ $(PROGRAM)_variant9: $(sources) Makefile
 	echo '#define OPTS "VARIANT9: $($(PROGRAM)_variant9)"' > options.h 
 	$($(PROGRAM)_variant9) -o $(PROGRAM)_variant9
 	$($(PROGRAM)_variant9) -S -o $(PROGRAM)_variant9.s
+$(PROGRAM)_variant10: $(sources) Makefile
+	echo '#define OPTS "VARIANT10: $($(PROGRAM)_variant10)"' > options.h 
+	$($(PROGRAM)_variant10) -o $(PROGRAM)_variant10
+	$($(PROGRAM)_variant10) -S -o $(PROGRAM)_variant10.s
+$(PROGRAM)_variant11: $(sources) Makefile
+	echo '#define OPTS "VARIANT11: $($(PROGRAM)_variant11)"' > options.h 
+	$($(PROGRAM)_variant11) -o $(PROGRAM)_variant11
+	$($(PROGRAM)_variant11) -S -o $(PROGRAM)_variant11.s
+$(PROGRAM)_variant12: $(sources) Makefile
+	echo '#define OPTS "VARIANT12: $($(PROGRAM)_variant12)"' > options.h 
+	$($(PROGRAM)_variant12) -o $(PROGRAM)_variant12
+	$($(PROGRAM)_variant12) -S -o $(PROGRAM)_variant12.s
 
 .prebuild:
 	nasm -f elf32 -F dwarf $(ASM).asm

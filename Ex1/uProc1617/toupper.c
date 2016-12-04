@@ -58,9 +58,9 @@ struct _toupperversion
 toupperversion[] = 
 {
     { "toupper_simple",    				toupper_simple },
-    { "toupper_asm", 					toupper_singlebyte__asm },
+    //{ "toupper_asm", 					toupper_singlebyte__asm },
     { "toupper_unsafe", 				toupper_unsafe },
-    { "toupper_asm_4atonce_unsafe", 	toupper_4atonce_unsafe_asm },
+    //{ "toupper_asm_4atonce_unsafe", 	toupper_4atonce_unsafe_asm },
     { 0, 0 }
 };
 
