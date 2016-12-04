@@ -14,7 +14,8 @@ unsigned long*	g_Sizes;
 // use fastcall to pass ptr
 // __attribute__((fastcall))
 __attribute__((cdecl)) void toupper_singlebyte__asm(char* pStr);
-__attribute__((cdecl)) void toupper_4atonce_asm(char* pStr);
+//__attribute__((cdecl)) void toupper_4atonce_asm(char* pStr);
+__attribute__((cdecl)) void toupper_4atonce_unsafe_asm(char* pStr);
 
 
 /*****************************************************************/
@@ -34,18 +35,6 @@ __attribute__((cdecl))  void toupper_simple(char * text)
 	}
 }
 
-// Default version - assembler
-// __attribute__((cdecl)) void toupper_asm(char * text) 
-// {
-// 	toupper_singlebyte__asm(text);
-// }
-
-// // For 4 byte aligned strings - assembler
-// __attribute__((cdecl)) void toupper_asm_4atonce(char * text) 
-// {
-// 	toupper_4atonce_asm(text);
-// }
-
 // Assume only letters as input - c
 __attribute__((cdecl))  void toupper_letters(char * text) 
 {
@@ -55,19 +44,6 @@ __attribute__((cdecl))  void toupper_letters(char * text)
 		++text;
 	}
 }
-
-// Assume only letters as input - assembler
-__attribute__((cdecl)) void toupper_letters_asm(char * text) 
-{
-	// TODO
-}
-
-// For 4 byte aligned strings - assembler
-__attribute__((cdecl))  void toupper_letters_asm_4atonce(char * text) 
-{
-	//TODO
-}
-
 
 /*****************************************************************/
 // Register versions.
@@ -83,10 +59,8 @@ toupperversion[] =
 {
     { "toupper_simple",    				toupper_simple },
     { "toupper_asm", 					toupper_singlebyte__asm },
-    { "toupper_asm_4atonce", 			toupper_4atonce_asm },
-    { "toupper_letters", 				toupper_letters },
-    { "toupper_letters_asm", 			toupper_letters_asm },
-    { "toupper_letters_asm_4atonce", 	toupper_letters_asm_4atonce },
+    //{ "toupper_asm_4atonce", 			toupper_4atonce_asm },
+    { "toupper_asm_4atonce_unsafe", 	toupper_4atonce_unsafe_asm },
     { 0, 0 }
 };
 
@@ -176,7 +150,7 @@ void run_toupper(int size, int ratio, int index, toupperfunc f)
 		printf("After: %.40s...\n", pText);
 	}
 
-	free(pAddr);
+	//free(pAddr);
 }
 
 
