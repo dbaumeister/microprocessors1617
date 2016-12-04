@@ -145,11 +145,22 @@ static inline double gettime(void)
 
 void run_toupper(int size, int ratio, int index, toupperfunc f)
 {
-	void* pAddr = malloc(g_Sizes[size] + 1 + 32);
+	int iStringLength = g_Sizes[size]; 
+	size_t uSize = iStringLength + 1 + 32;
+	void* pAddr = malloc(uSize);
 
 	// align at 16 byte boundaries
 	char* pText =  (char*)((size_t)pAddr / 16 * 16 + 16);
-	initText(g_Sizes[size], g_Ratios[ratio], pText);
+	initText(iStringLength, g_Ratios[ratio], pText);
+
+	char* pTextEnd = pText + iStringLength;
+	char* pMemEnd = ((char*)pAddr) + uSize;
+
+	// null the remaining memory
+	for(; pTextEnd < pMemEnd; pTextEnd++)
+	{
+		*pTextEnd = '\0';
+	}
 
 	if(g_Debug)
 	{

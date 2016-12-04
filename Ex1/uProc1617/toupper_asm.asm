@@ -10,7 +10,6 @@ toupper_singlebyte__asm:
     mov ebp, esp
     mov esi, [esp+8]   ; argument 1
     ;mov esi, ecx; use fastcall argument is in eax, or sometimes ecx because gcc
-    ;push eax
 next_s:
     mov edi, esi; mov src addr to dest addr for stosd
     lodsb ; load one char
@@ -24,8 +23,7 @@ next_s:
     stosb; store byte
     jmp next_s; is not 0 => jump to next
 exit_s:
-    pop ebp             ; restore old frame pointer
-    ;pop eax;
+    pop ebp; restore old frame pointer
     ret
 
 toupper_4atonce_asm:
@@ -33,11 +31,10 @@ toupper_4atonce_asm:
     mov ebp, esp
     mov esi, [esp+8]   ; argument 1
     ;mov esi, ecx; use fastcall argument is in eax
-    ;push eax
 next_4:
     mov edi, esi; mov src addr to dest addr for stosd
     lodsd; load 4 char string (ptr in esi) to eax
-    test al, al ; test if al is 0
+    test eax,eax ; test if al is 0
     je exit_4 ; end of the string
     cmp al, 0x61 ; cmp to 'a'
     jb next_4 ; char is smaller 'a'
@@ -48,5 +45,4 @@ next_4:
     jmp next_4; is not 0 => jump to next
 exit_4:
     pop ebp             ; restore old frame pointer
-    ;pop eax
     ret
