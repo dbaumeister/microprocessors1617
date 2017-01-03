@@ -10,9 +10,8 @@
 std::vector<std::string> g_xData;
 std::vector<std::string> g_yData;
 
+// Ex 2.1
 void ex1() {
-	// Ex 2.1
-	// TODO plot
 	const int N = 1024 * 4096;
 
 	char* arr = new char[N];
@@ -53,14 +52,11 @@ struct byte64 {
 	char rest[64 - sizeof(int)];
 };
 
+// Ex2.2
 void ex2() {
-
-
 	g_xData.push_back("Array size in bytes");
 	g_yData.push_back("Average time in us");
 
-	// Ex2.2
-	// TODO linear & exponential plot
 	for (int i = 0; i < 14; ++i) {
 
 		const int N = (1 << i) * 16 * 4;
