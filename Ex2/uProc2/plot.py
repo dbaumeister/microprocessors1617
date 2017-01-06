@@ -30,7 +30,7 @@ xline = lines[0].split(',')
 yline = lines[1].split(',')
 
 
-xvalues = [int(i) for i in xline[1:]]
+xvalues = [float(i) for i in xline[1:]]
 yvalues = [float(i) for i in yline[1:]]
 
 xlabel = xline[0]

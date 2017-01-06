@@ -5,7 +5,8 @@
 #include <string>
 
 
-#define Ex1
+//#define Ex1
+//#define L1L2
 
 std::vector<std::string> g_xData;
 std::vector<std::string> g_yData;
@@ -52,14 +53,13 @@ struct byte64 {
 	char rest[64 - sizeof(int)];
 };
 
-// Ex2.2
-void ex2() {
-	g_xData.push_back("Array size in bytes");
+// Ex2.2 with linear increase to see L3 cache
+void ex2(int maxSize, int stepSize) {
+	g_xData.push_back("Array size in MB");
 	g_yData.push_back("Average time in us");
 
-	for (int i = 0; i < 14; ++i) {
-
-		const int N = (1 << i) * 16 * 4;
+	for (int i = 1; i < maxSize / stepSize; ++i) {
+		const int N = i * stepSize;
 		byte64* arr = new byte64[N];
 
 		for (int i = 0; i < N; ++i) {
@@ -80,13 +80,34 @@ void ex2() {
 		double avgMicros = micros / 1000000.0;
 
 
-		g_xData.push_back(std::to_string(N * 64));
+		double size = (N * 64) / 1024.0 / 1024.0; // Memory size in MB
+		g_xData.push_back(std::to_string(size));
 		g_yData.push_back(std::to_string(avgMicros));
 
 		printf("Time: %f\t AvgTime: %f\t Size: %d\t Result: %d\n", micros, avgMicros, N * 64, curr);
 
 		delete arr;
 	}
+}
+
+// Ex2.2 with linear increase to see L3 cache
+void ex2L3() {
+	const int maxSize = (1 << 23) // 8 MB
+		>> 6 // 64byte block
+		; // Maximum number of 64byte blocks
+	const int stepSize = 16 // kB
+		* 8; // Number of 64byte blocks to increase per step
+	ex2(maxSize, stepSize);
+}
+
+// Ex2.2 with linear increase to see L3 cache
+void ex2L1L2() {
+	const int maxSize = (1 << 20) // 1 MB
+		>> 6 // 64byte block
+		; // Maximum number of 64byte blocks
+	const int stepSize = 16 // kB
+		* 1; // Number of 64byte blocks to increase per step
+	ex2(maxSize, stepSize);
 }
 
 void writeResults() {
@@ -118,7 +139,12 @@ void main() {
 #ifdef Ex1
 	ex1();
 #else
-	ex2();
+#ifdef L1L2
+	ex2L1L2();
+#else
+	ex2L3();
+#endif // L1
 #endif // Ex1
+
 	writeResults();
 }
