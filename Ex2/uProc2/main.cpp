@@ -92,11 +92,11 @@ void ex2(int maxSize, int stepSize) {
 
 // Ex2.2 with linear increase to see L3 cache
 void ex2L3() {
-	const int maxSize = (1 << 23) // 8 MB
+	const int maxSize = (1 << 24) // 16 MB
 		>> 6 // 64byte block
 		; // Maximum number of 64byte blocks
 	const int stepSize = 16 // kB
-		* 8; // Number of 64byte blocks to increase per step
+		* 16; // Number of 64byte blocks to increase per step
 	ex2(maxSize, stepSize);
 }
 
