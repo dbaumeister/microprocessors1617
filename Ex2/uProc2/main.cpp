@@ -5,7 +5,7 @@
 #include <string>
 
 
-//#define Ex1
+#define Ex1
 //#define L1L2
 
 std::vector<std::string> g_xData;
@@ -13,24 +13,23 @@ std::vector<std::string> g_yData;
 
 // Ex 2.1
 void ex1() {
-	const int N = 1024 * 4096;
+	const int N = 1024 * 4096 * 4;
 
 	char* arr = new char[N];
 	for (int i = 0; i < N; ++i) {
 		arr[i] = 'x';
 	}
 
-	g_xData.push_back("Stride");
+	g_xData.push_back("Stride in bytes");
 	g_yData.push_back("Average time in us");
 
-	for (int stride = 1; stride < 128; ++stride) {
+	for (int stride = 1; stride < 1024; ++stride) {
 
 		// http://en.cppreference.com/w/cpp/chrono/c/clock
 		auto t_start = std::chrono::steady_clock::now();
 
-		int acc = 0;
 		for (int i = 0; i < N; i += stride) {
-			acc += arr[i];
+			arr[i] += 'a';
 		}
 
 		auto t_end = std::chrono::steady_clock::now();
@@ -42,7 +41,7 @@ void ex1() {
 		g_xData.push_back(std::to_string(stride));
 		g_yData.push_back(std::to_string(avgMicros));
 
-		printf("Time: %f - AvgTime: %f  - Stride: %d - Result: %d\n", micros, avgMicros, stride, acc);
+		printf("Time: %f - AvgTime: %f  - Stride: %d - Result: %d\n", micros, avgMicros, stride, arr[13]);
 	}
 
 	delete arr;
